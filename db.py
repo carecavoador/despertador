@@ -35,3 +35,12 @@ class Banco:
         """Retorna uma lista com todos os alarmes."""
         with sqlite3.connect(self._db) as con:
             return con.execute("SELECT * FROM alarmes;").fetchall()
+
+
+if __name__ == "__main__":
+    db = Banco()
+    db._query("""DROP TABLE alarmes""")
+    db = Banco()
+    db.add_alarme("Teste1", 8, 0)
+    db.add_alarme("Teste2", 10, 30)
+    db.add_alarme("Teste3", 16, 20)

@@ -1,6 +1,7 @@
 import sys
 from PySide6 import QtWidgets, QtCore
 
+from alarme import Alarme
 from db import Banco
 
 class NewTimerDialog(QtWidgets.QDialog):
@@ -49,7 +50,7 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.layout_principal.addWidget(self.painel_timers, 1, 0)
 
         # DATA
-        self.timers = [(t[0], t[1], t[2], t[3]) for t in self.db.alarmes]
+        self.timers = None
         self.display_timers()
 
         self.scroll = QtWidgets.QScrollArea()
@@ -59,27 +60,24 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.scroll)
 
     def display_timers(self) -> None:
-        def remove_timer(layout: QtWidgets.QLayout, widget: QtWidgets.QWidget, id: int) -> None:
+        def remove_timer(timer: Alarme, layout: QtWidgets.QLayout, widget: QtWidgets.QWidget) -> None:
             layout.removeWidget(widget)
             widget.deleteLater()
-            self.db.remove_alarme(key=id)
-            self.timers.remove((id, widget))
+            self.db.remove_alarme(key=timer.id)
+            self.timers.remove(timer)
+
+        self.timers = [Alarme(t[0], t[1], t[2], t[3]) for t in self.db.alarmes]
 
         for timer in self.timers:
-            id = timer[0]
-            description = timer[1]
-            hour = timer[2]
-            minutes = timer[3]
-            
             widget = QtWidgets.QGroupBox()
             layout = QtWidgets.QGridLayout(widget)
 
-            label = QtWidgets.QLabel(f"<b>{description if description else 'Alarme'}</b>")
-            label_time = QtWidgets.QLabel(f"{hour:02}:{minutes:02}")
+            label_description = QtWidgets.QLabel(f"<b>{timer.description}</b>")
+            label_time = QtWidgets.QLabel(f"{timer.hour:02}:{timer.minutes:02}")
             btn_remove = QtWidgets.QPushButton(text="Remover alarme")
-            btn_remove.clicked.connect(lambda: remove_timer(layout, widget, id))
+            btn_remove.clicked.connect(lambda: remove_timer(timer, layout, widget))
 
-            layout.addWidget(label, 0, 0)
+            layout.addWidget(label_description, 0, 0)
             layout.addWidget(label_time, 1, 0)
             layout.addWidget(btn_remove, 2, 0)
 
@@ -87,13 +85,16 @@ class TimerWindow(QtWidgets.QMainWindow):
 
     def add_timer(self) -> None:
         new_timer = NewTimerDialog()
+
         if new_timer.exec():
             description = new_timer.description.text()
+            if not description:
+                description = "Alarme"
             hour = new_timer.time.time().hour()
             minutes = new_timer.time.time().minute()
-            id = self.db.add_alarme(description, hour, minutes)
-            self.timers.append((id, self.display_timer(id=id, description=description, hour=hour, minutes=minutes)))
-        self.update_timers()
+            self.db.add_alarme(descricao=description, hora=hour, minutos=minutes)
+
+        self.display_timers()
 
 
 if __name__ == "__main__":
