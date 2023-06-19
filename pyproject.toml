@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "alarme"
+version = "0.2.0"
+description = ""
+authors = ["Everton de Souza <e.rodrigo@outlook.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+PySide6 = "^6.5.1.1"
+
+[tool.pylint.'MESSAGES CONTROL']
+disable=[
+  'no-name-in-module',
+  'global-statement',
+  'c-extension-no-member'
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

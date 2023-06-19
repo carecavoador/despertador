@@ -1,5 +1,4 @@
 import sys
-import config
 import datetime as dt
 
 from PySide6.QtWidgets import (
@@ -9,12 +8,13 @@ from PySide6.QtWidgets import (
     QSystemTrayIcon,
     QMessageBox,
     QVBoxLayout,
-    QWidget,
     QTimeEdit,
     QLabel
 )
 from PySide6.QtGui import QAction, QIcon
 from PySide6.QtCore import QTime, QTimer
+
+import config
 from janela_alarme import Ui_MainWindow
 
 
