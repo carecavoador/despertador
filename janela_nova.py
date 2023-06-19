@@ -51,8 +51,8 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.layout_principal.addWidget(self.painel_timers, 1, 0)
 
         # DATA
-        self.timers = None
-        self.update_timers()
+        self.timers = [Alarme(t[0], t[1], t[2], t[3]) for t in self.db.alarmes]
+        self.display_timers()
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -66,19 +66,12 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.db.remove_alarme(key=timer.id)
         self.update_timers()
 
-    def update_timers(self) -> None:
-        self.timers = None
-        while self.layout_timers.count() > 0:
-            current = self.layout_timers.itemAt(0).widget()
-            if current:
-                current.close()
-            else:
-                break
-        self.timers = [Alarme(t[0], t[1], t[2], t[3]) for t in self.db.alarmes]
-        self.display_timers()
-
-
     def display_timers(self) -> None:
+        def remove_from_layout(timer, layout: QtWidgets.QLayout, widget: QtWidgets.QWidget) -> None:
+            layout.removeWidget(widget)
+            widget.deleteLater()
+            self.remove_timer(timer)
+            
         for timer in self.timers:
             widget = QtWidgets.QGroupBox()
             layout = QtWidgets.QGridLayout(widget)
@@ -86,7 +79,7 @@ class TimerWindow(QtWidgets.QMainWindow):
             label_description = QtWidgets.QLabel(f"<b>{timer.description}</b>")
             label_time = QtWidgets.QLabel(f"{timer.hour:02}:{timer.minutes:02}")
             btn_remove = QtWidgets.QPushButton(text="Remover alarme")
-            btn_remove.clicked.connect(lambda: self.remove_timer(timer))
+            btn_remove.clicked.connect(lambda: remove_from_layout(timer, layout, widget))
 
             layout.addWidget(label_description, 0, 0)
             layout.addWidget(label_time, 1, 0)
@@ -104,7 +97,7 @@ class TimerWindow(QtWidgets.QMainWindow):
             minutes = new_timer.time.time().minute()
             self.db.add_alarme(descricao=description, hora=hour, minutos=minutes)
 
-        self.update_timers()
+        self.display_timers()
 
 
 if __name__ == "__main__":
