@@ -51,7 +51,7 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.layout_principal.addWidget(self.painel_timers, 1, 0)
 
         # DATA
-        self.timers = [Alarme(t[0], t[1], t[2], t[3]) for t in self.db.alarmes]
+        # self.timers = [Alarme(t[0], t[1], t[2], t[3]) for t in self.db.alarmes]
         self.display_timers()
 
         self.scroll = QtWidgets.QScrollArea()
@@ -64,9 +64,10 @@ class TimerWindow(QtWidgets.QMainWindow):
 
     def remove_timer(self, timer) -> None:
         self.db.remove_alarme(key=timer.id)
-        self.update_timers()
+        self.display_timers()
 
     def display_timers(self) -> None:
+        self.timers = [Alarme(t[0], t[1], t[2], t[3]) for t in self.db.alarmes]
         def remove_from_layout(timer, layout: QtWidgets.QLayout, widget: QtWidgets.QWidget) -> None:
             layout.removeWidget(widget)
             widget.deleteLater()
