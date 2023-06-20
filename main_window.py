@@ -104,10 +104,3 @@ class TimerWindow(QtWidgets.QMainWindow):
     def remove_timer(self, timer) -> None:
         self.db.remove_alarme(key=timer.id)
         self.update_timers()
-
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    dialog = TimerWindow()
-    dialog.show()
-    sys.exit(app.exec())
