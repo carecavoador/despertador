@@ -1,8 +1,8 @@
 import sys
 from PySide6 import QtWidgets, QtGui
 
-from alarme import Alarme
-from db import Banco
+from alarm import Alarm
+from db import Database
 
 
 class NewTimerDialog(QtWidgets.QDialog):
@@ -32,24 +32,24 @@ class NewTimerDialog(QtWidgets.QDialog):
 class TimerWindow(QtWidgets.QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.db = Banco()
+        self.db = Database()
         self.setWindowTitle("Despertador 0.2.0")
         self.setWindowIcon(QtGui.QIcon("icone.ico"))
         self.setMinimumSize(240, 360)
 
-        self.painel_principal = QtWidgets.QWidget()
-        self.layout_principal = QtWidgets.QGridLayout(self.painel_principal)
+        self.main_panel = QtWidgets.QWidget()
+        self.main_layout = QtWidgets.QGridLayout(self.main_panel)
 
         self.btn_add = QtWidgets.QPushButton("Novo alarme")
         self.btn_add.clicked.connect(self.add_timer)
 
-        self.painel_timers = QtWidgets.QWidget()
-        self.layout_timers = QtWidgets.QVBoxLayout(self.painel_timers)
-        self.layout_timers.addStretch()
-        self.layout_timers.setDirection(self.layout_timers.Direction.BottomToTop)
+        self.timers_panel = QtWidgets.QWidget()
+        self.timers_layout = QtWidgets.QVBoxLayout(self.timers_panel)
+        self.timers_layout.addStretch()
+        self.timers_layout.setDirection(self.timers_layout.Direction.BottomToTop)
 
-        self.layout_principal.addWidget(self.btn_add, 0, 0)
-        self.layout_principal.addWidget(self.painel_timers, 1, 0)
+        self.main_layout.addWidget(self.btn_add, 0, 0)
+        self.main_layout.addWidget(self.timers_panel, 1, 0)
 
         # DATA
         self.timers = []
@@ -62,13 +62,13 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.scroll.setVerticalScrollBarPolicy(
             self.scroll.verticalScrollBarPolicy().ScrollBarAlwaysOn
         )
-        self.scroll.setWidget(self.painel_principal)
+        self.scroll.setWidget(self.main_panel)
         self.setCentralWidget(self.scroll)
 
     def update_timers(self) -> None:
-        self.timers = [Alarme(t[0], t[1], t[2], t[3]) for t in self.db.alarmes]
+        self.timers = [Alarm(t[0], t[1], t[2], t[3]) for t in self.db.alarms]
 
-    def display_timer(self, timer: Alarme) -> None:
+    def display_timer(self, timer: Alarm) -> None:
         def remove_from_layout(
             timer, layout: QtWidgets.QLayout, widget: QtWidgets.QWidget
         ) -> None:
@@ -88,7 +88,7 @@ class TimerWindow(QtWidgets.QMainWindow):
         layout.addWidget(label_time, 1, 0)
         layout.addWidget(btn_remove, 2, 0)
 
-        self.layout_timers.addWidget(widget)
+        self.timers_layout.addWidget(widget)
 
     def add_timer(self) -> None:
         new_timer = NewTimerDialog()
@@ -98,10 +98,8 @@ class TimerWindow(QtWidgets.QMainWindow):
                 description = "Alarme"
             hour = new_timer.time.time().hour()
             minutes = new_timer.time.time().minute()
-            id = self.db.add_alarme(descricao=description, hora=hour, minutos=minutes)
-            self.display_timer(
-                Alarme(id=id, description=description, hour=hour, minutes=minutes)
-            )
+            id = self.db.add_alarm(description=description, hour=hour, minutes=minutes)
+            self.display_timer(Alarm(id, description, hour, minutes))
 
     def remove_timer(self, timer) -> None:
         self.db.remove_alarme(key=timer.id)

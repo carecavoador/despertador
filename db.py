@@ -1,53 +1,44 @@
 import pathlib
 import sqlite3
 
-# DB_TIMERS = pathlib.Path().home().joinpath(".config/Despertador/alarmes.db")
-DB_TIMERS = pathlib.Path("alarmes.db")
+
+DB_TIMERS = pathlib.Path("alarms.db")
 
 
-class Banco:
-    """Controller para acessar e manipular o banco de dados."""
+class Database:
+    """Database controller."""
 
-    def __init__(self, db: pathlib.Path = DB_TIMERS) -> None:
+    def __init__(self, db=DB_TIMERS) -> None:
         self._db = pathlib.Path(db)
         self._query(
-            """CREATE TABLE IF NOT EXISTS alarmes (id INTEGER NOT NULL PRIMARY KEY, descricao TEXT, hora INTEGER, minutos INTEGER);"""
+            """CREATE TABLE IF NOT EXISTS tb_alarms (id INTEGER NOT NULL PRIMARY KEY, description TEXT, hour INTEGER, minutes INTEGER);"""
         )
 
-    def add_alarme(self, descricao: str, hora: int, minutos: int) -> None:
-        """Adiciona um novo lembrete."""
+    def add_alarm(self, description: str, hour: int, minutes: int) -> None:
+        """Adds a new alarm."""
         with sqlite3.connect(self._db) as conn:
             c = conn.cursor()
             c.execute(
-                "INSERT INTO alarmes (descricao, hora, minutos) VALUES (?, ?, ?);",
-                [descricao, hora, minutos],
+                "INSERT INTO tb_alarms (description, hour, minutes) VALUES (?, ?, ?);",
+                [description, hour, minutes],
             )
             return c.lastrowid
 
     def remove_alarme(self, key: int) -> None:
-        """Remove um lembrete pela id (primary key)."""
+        """Remove a alarm by the primary key."""
         with sqlite3.connect(self._db) as conn:
             c = conn.cursor()
-            c.execute("DELETE FROM alarmes WHERE id=(?);", (key,))
+            c.execute("DELETE FROM tb_alarms WHERE id=(?);", (key,))
 
     def _query(self, query: str) -> None:
-        """APENAS PARA DEBUG. Executa querys direto no banco."""
+        """DEBUG ONLY, directly execute queries."""
         with sqlite3.connect(self._db) as conn:
             c = conn.cursor()
             return c.execute(query)
 
     @property
-    def alarmes(self) -> list[tuple]:
-        """Retorna uma lista com todos os alarmes."""
+    def alarms(self) -> list[tuple]:
+        """List of all alarms on the database."""
         with sqlite3.connect(self._db) as conn:
             c = conn.cursor()
-            return c.execute("SELECT * FROM alarmes;").fetchall()
-
-
-if __name__ == "__main__":
-    db = Banco()
-    db._query("""DROP TABLE alarmes""")
-    db = Banco()
-    db.add_alarme("Teste1", 8, 0)
-    db.add_alarme("Teste2", 10, 30)
-    db.add_alarme("Teste3", 16, 20)
+            return c.execute("SELECT * FROM tb_alarms;").fetchall()

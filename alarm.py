@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Alarme:
+class Alarm:
     id: int
     description: str
     hour: int
