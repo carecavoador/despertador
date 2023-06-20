@@ -1,5 +1,5 @@
 import sys
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets
 
 from alarme import Alarme
 from db import Banco
@@ -51,8 +51,10 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.layout_principal.addWidget(self.painel_timers, 1, 0)
 
         # DATA
-        # self.timers = [Alarme(t[0], t[1], t[2], t[3]) for t in self.db.alarmes]
-        self.display_timers()
+        self.timers = []
+        self.update_timers()
+        for timer in self.timers:
+            self.display_timer(timer)
 
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -62,31 +64,30 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.scroll.setWidget(self.painel_principal)
         self.setCentralWidget(self.scroll)
 
-    def remove_timer(self, timer) -> None:
-        self.db.remove_alarme(key=timer.id)
-        self.display_timers()
-
-    def display_timers(self) -> None:
+    def update_timers(self) -> None:
         self.timers = [Alarme(t[0], t[1], t[2], t[3]) for t in self.db.alarmes]
-        def remove_from_layout(timer, layout: QtWidgets.QLayout, widget: QtWidgets.QWidget) -> None:
+
+    def display_timer(self, timer: Alarme) -> None:
+        def remove_from_layout(
+            timer, layout: QtWidgets.QLayout, widget: QtWidgets.QWidget
+        ) -> None:
             layout.removeWidget(widget)
             widget.deleteLater()
             self.remove_timer(timer)
-            
-        for timer in self.timers:
-            widget = QtWidgets.QGroupBox()
-            layout = QtWidgets.QGridLayout(widget)
 
-            label_description = QtWidgets.QLabel(f"<b>{timer.description}</b>")
-            label_time = QtWidgets.QLabel(f"{timer.hour:02}:{timer.minutes:02}")
-            btn_remove = QtWidgets.QPushButton(text="Remover alarme")
-            btn_remove.clicked.connect(lambda: remove_from_layout(timer, layout, widget))
+        widget = QtWidgets.QGroupBox()
+        layout = QtWidgets.QGridLayout(widget)
 
-            layout.addWidget(label_description, 0, 0)
-            layout.addWidget(label_time, 1, 0)
-            layout.addWidget(btn_remove, 2, 0)
+        label_description = QtWidgets.QLabel(f"<b>{timer.description}</b>")
+        label_time = QtWidgets.QLabel(f"{timer.hour:02}:{timer.minutes:02}")
+        btn_remove = QtWidgets.QPushButton(text="Remover alarme")
+        btn_remove.clicked.connect(lambda: remove_from_layout(timer, layout, widget))
 
-            self.layout_timers.addWidget(widget)
+        layout.addWidget(label_description, 0, 0)
+        layout.addWidget(label_time, 1, 0)
+        layout.addWidget(btn_remove, 2, 0)
+
+        self.layout_timers.addWidget(widget)
 
     def add_timer(self) -> None:
         new_timer = NewTimerDialog()
@@ -96,9 +97,14 @@ class TimerWindow(QtWidgets.QMainWindow):
                 description = "Alarme"
             hour = new_timer.time.time().hour()
             minutes = new_timer.time.time().minute()
-            self.db.add_alarme(descricao=description, hora=hour, minutos=minutes)
+            id = self.db.add_alarme(descricao=description, hora=hour, minutos=minutes)
+            self.display_timer(
+                Alarme(id=id, description=description, hour=hour, minutes=minutes)
+            )
 
-        self.display_timers()
+    def remove_timer(self, timer) -> None:
+        self.db.remove_alarme(key=timer.id)
+        self.update_timers()
 
 
 if __name__ == "__main__":
