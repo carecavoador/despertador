@@ -1,4 +1,4 @@
-import sys
+from datetime import datetime
 from PySide6 import QtWidgets, QtGui
 
 from alarm import Alarm
@@ -32,7 +32,6 @@ class NewTimerDialog(QtWidgets.QDialog):
 class TimerWindow(QtWidgets.QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.db = Database()
         self.setWindowTitle("Despertador 0.2.0")
         self.setWindowIcon(QtGui.QIcon("icon.ico"))
         self.setMinimumSize(240, 360)
@@ -66,7 +65,7 @@ class TimerWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.scroll)
 
     def update_timers(self) -> None:
-        self.timers = [Alarm(t[0], t[1], t[2], t[3]) for t in self.db.alarms]
+        self.timers = Database().list_alarms()
 
     def display_timer(self, timer: Alarm) -> None:
         def remove_from_layout(
@@ -80,7 +79,7 @@ class TimerWindow(QtWidgets.QMainWindow):
         layout = QtWidgets.QGridLayout(widget)
 
         label_description = QtWidgets.QLabel(f"<b>{timer.description}</b>")
-        label_time = QtWidgets.QLabel(f"{timer.hour:02}:{timer.minutes:02}")
+        label_time = QtWidgets.QLabel(f"{timer.next_alarm.hour:02}:{timer.next_alarm.minute:02}")
         btn_remove = QtWidgets.QPushButton(text="Remove alarm")
         btn_remove.clicked.connect(lambda: remove_from_layout(timer, layout, widget))
 
@@ -98,9 +97,14 @@ class TimerWindow(QtWidgets.QMainWindow):
                 description = "New alarm"
             hour = new_timer.time.time().hour()
             minutes = new_timer.time.time().minute()
-            id = self.db.add_alarm(description=description, hour=hour, minutes=minutes)
-            self.display_timer(Alarm(id, description, hour, minutes))
+
+            now = datetime.now()
+            next_alarm = datetime.fromisoformat(f"{now.year}-{now.month:02}-{now.day:02} {hour:02}:{minutes:02}:00.000")
+
+            alarm_id = Database().add_alarm(description=description, next_alarm=next_alarm)
+
+            self.display_timer(Alarm(id=alarm_id, description=description, next_alarm=next_alarm))
 
     def remove_timer(self, timer) -> None:
-        self.db.remove_alarme(key=timer.id)
+        Database().remove_alarm(key=timer.id)
         self.update_timers()

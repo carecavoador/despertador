@@ -1,9 +1,9 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass
 class Alarm:
     id: int
     description: str
-    hour: int
-    minutes: int
+    next_alarm: datetime

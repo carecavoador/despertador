@@ -1,27 +1,27 @@
 import sys
-import datetime as dt
+from datetime import datetime, timedelta
 
 from PySide6 import QtWidgets, QtGui, QtCore
 
 from db import Database
-from alarm import Alarm
 from main_window import TimerWindow
 
 
 def check_alarms() -> None:
     """Checks alarms and display notification."""
 
-    now = dt.datetime.now()
-    alarms = [Alarm(t[0], t[1], t[2], t[3]) for t in Database().alarms]
+    now = datetime.now()
+    alarms = Database().list_alarms()
     for alarm in alarms:
-        hour = alarm.hour
-        minutes = alarm.minutes
-        description = alarm.description
-        if hour == now.hour and minutes == now.minute:
+        alarm_ringed = alarm.next_alarm > now
+        if not alarm_ringed:
+            next_alarm = alarm.next_alarm + timedelta(days=1)
+            Database().ring_alarm(alarm.id, next_alarm=next_alarm)
+
             aviso = QtWidgets.QMessageBox()
             aviso.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            aviso.setWindowTitle(f"Alarm {hour:02}:{minutes:02}")
-            aviso.setText(description)
+            aviso.setWindowTitle(f"Alarm {alarm.next_alarm.hour:02}:{alarm.next_alarm.minute:02}")
+            aviso.setText(alarm.description)
             aviso.exec()
 
 
@@ -33,7 +33,7 @@ def main() -> None:
 
     # Timer
     timer = QtCore.QTimer()
-    timer.start(1000 * 31)  # Timer timeout every 31 seconds
+    timer.start(1000)  # Timer timeout every second
     timer.timeout.connect(check_alarms)
 
     # Main window
