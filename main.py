@@ -33,7 +33,7 @@ def main() -> None:
 
     # Timer
     timer = QtCore.QTimer()
-    timer.start(1000 * 31)
+    timer.start(1000 * 31)  # Timer timeout every 31 seconds
     timer.timeout.connect(check_alarms)
 
     # Main window
@@ -41,16 +41,16 @@ def main() -> None:
 
     # System tray
     tray = QtWidgets.QSystemTrayIcon()
-    icon = QtGui.QIcon("icone.ico")
+    icon = QtGui.QIcon("icon.ico")
     tray.setIcon(icon)
     tray.setVisible(True)
 
     # Tray menu
     menu = QtWidgets.QMenu()
-    open_window = QtGui.QAction("Verificar alarmes")
+    open_window = QtGui.QAction("Show alarms")
     open_window.triggered.connect(window.show)
     menu.addAction(open_window)
-    close_app = QtGui.QAction("Fechar")
+    close_app = QtGui.QAction("Quit")
     close_app.triggered.connect(app.quit)
     menu.addAction(close_app)
     tray.setContextMenu(menu)
