@@ -1,5 +1,5 @@
 import sys
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtGui
 
 from alarme import Alarme
 from db import Banco
@@ -33,7 +33,8 @@ class TimerWindow(QtWidgets.QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.db = Banco()
-        self.setWindowTitle("Alarmes")
+        self.setWindowTitle("Despertador 0.2.0")
+        self.setWindowIcon(QtGui.QIcon("icone.ico"))
         self.setMinimumSize(240, 360)
 
         self.painel_principal = QtWidgets.QWidget()
