@@ -20,7 +20,7 @@ def check_alarms() -> None:
         if hour == now.hour and minutes == now.minute:
             aviso = QtWidgets.QMessageBox()
             aviso.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            aviso.setWindowTitle(f"Alarme {hour:02}:{minutes:02}")
+            aviso.setWindowTitle(f"Alarm {hour:02}:{minutes:02}")
             aviso.setText(description)
             aviso.exec()
 
