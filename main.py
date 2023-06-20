@@ -5,7 +5,7 @@ from PySide6 import QtWidgets, QtGui, QtCore
 
 from db import Database
 from alarm import Alarm
-from janela_nova import TimerWindow
+from main_window import TimerWindow
 
 
 def check_alarms() -> None:
