@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "alarme"
-version = "0.2.1"
+version = "0.2.2"
 description = ""
 authors = ["Everton de Souza <e.rodrigo@outlook.com>"]
 readme = "README.md"
